@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Hub — Momentum Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0c0c0e;
+      --bg-card:    #141418;
+      --bg-card-h:  #1a1a20;
+      --border:     #242430;
+      --border-h:   #d4a847;
+      --gold:       #d4a847;
+      --gold-dim:   #a87e30;
+      --gold-glow:  rgba(212, 168, 71, 0.18);
+      --text:       #e8e8ec;
+      --text-muted: #6b6b7a;
+      --text-sub:   #9898a8;
+      --red:        #e07a5f;
+      --green:      #6fbf8f;
+      --radius:     14px;
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 168, 71, 0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 50% 105%, rgba(212, 168, 71, 0.04) 0%, transparent 70%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      text-align: center;
+      padding: 56px 24px 32px;
+    }
+
+    .header-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      opacity: 0.85;
+    }
+    .header-eyebrow::before,
+    .header-eyebrow::after {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.4;
+    }
+
+    header h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #f0d080 0%, #d4a847 45%, #a87e30 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 1rem;
+      color: var(--text-sub);
+    }
+
+    .header-meta {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .header-meta .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      margin: 0 8px 1px;
+      vertical-align: middle;
+    }
+    .header-meta .dot.connected { background: var(--green); }
+    .header-meta .dot.error     { background: var(--red); }
+
+    .back-link {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color var(--transition);
+    }
+    .back-link:hover { color: var(--gold); }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .section {
+      margin-bottom: 36px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .section-title.overdue { color: var(--red); }
+    .section-title.today   { color: var(--gold); }
+
+    .section-count {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .empty {
+      padding: 18px 4px;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .event {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      transition: border-color var(--transition), background var(--transition), opacity var(--transition);
+    }
+
+    .event:hover {
+      border-color: rgba(212, 168, 71, 0.4);
+      background: var(--bg-card-h);
+    }
+
+    .event.done {
+      opacity: 0.4;
+    }
+    .event.done .event-title {
+      text-decoration: line-through;
+    }
+
+    .event.overdue {
+      border-color: rgba(224, 122, 95, 0.35);
+    }
+
+    .checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border-h);
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition), border-color var(--transition);
+      padding: 0;
+    }
+
+    .checkbox:hover { background: rgba(212, 168, 71, 0.1); }
+
+    .checkbox.checked {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .checkbox svg {
+      width: 14px;
+      height: 14px;
+      stroke: #0c0c0e;
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .checkbox.checked svg { opacity: 1; }
+
+    .event-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.005em;
+      margin-bottom: 3px;
+    }
+
+    .event-meta {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .source-tag {
+      display: inline-block;
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(212, 168, 71, 0.1);
+      color: var(--gold-dim);
+      border: 1px solid rgba(212, 168, 71, 0.2);
+    }
+
+    .event-when {
+      font-weight: 500;
+    }
+    .event-when.red { color: var(--red); }
+
+    .event-link {
+      flex-shrink: 0;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      transition: color var(--transition), border-color var(--transition);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .event-link:hover {
+      color: var(--gold);
+      border-color: var(--border-h);
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px 24px 36px;
+      border-top: 1px solid var(--border);
+    }
+
+    footer p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 64px 20px 28px; }
+      .back-link { top: 18px; left: 18px; }
+      main { padding: 0 16px 60px; }
+      .event { flex-wrap: wrap; padding: 14px 16px; }
+      .event-link { margin-left: 38px; }
+    }
+  </style>
+</head>
+<body>
+
+  <a class="back-link" href="index.html">&larr; Hub</a>
+
+  <header>
+    <div class="header-eyebrow">Unified Schedule</div>
+    <h1>Event Hub</h1>
+    <p>What's due, what's coming, what's slipping.</p>
+    <div class="header-meta">
+      <span id="todayLabel">—</span>
+      <span class="dot" id="syncDot"></span>
+      <span id="syncLabel">connecting…</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="section" data-bucket="overdue">
+      <div class="section-header">
+        <span class="section-title overdue">Overdue</span>
+        <span class="section-count" id="count-overdue"></span>
+      </div>
+      <div class="section-body" id="body-overdue"></div>
+    </div>
+
+    <div class="section" data-bucket="today">
+      <div class="section-header">
+        <span class="section-title today">Today</span>
+        <span class="section-count" id="count-today"></span>
+      </div>
+      <div class="section-body" id="body-today"></div>
+    </div>
+
+    <div class="section" data-bucket="week">
+      <div class="section-header">
+        <span class="section-title">Next 7 Days</span>
+        <span class="section-count" id="count-week"></span>
+      </div>
+      <div class="section-body" id="body-week"></div>
+    </div>
+
+    <div class="section" data-bucket="month">
+      <div class="section-header">
+        <span class="section-title">Later This Month</span>
+        <span class="section-count" id="count-month"></span>
+      </div>
+      <div class="section-body" id="body-month"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Dr. Todd Anderson · Synced via Firestore</p>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script>
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyBq77puuoon1uTmEVOFhHP9x-sixa7PD5o",
+      authDomain: "profit-first-dashboard.firebaseapp.com",
+      projectId: "profit-first-dashboard",
+      storageBucket: "profit-first-dashboard.firebasestorage.app",
+      messagingSenderId: "457012175633",
+      appId: "1:457012175633:web:1ca50f59e38346e6ade2b0"
+    };
+
+    const COMPLETIONS_DOC = { collection: 'dashboard', doc: 'event-hub-completions' };
+    const HORIZON_DAYS = 31;
+
+    // ── Date helpers ────────────────────────────────────────────────
+    const ymd = d => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+    const startOfDay = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+    const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+    const daysBetween = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / 86400000);
+    const lastDayOfMonth = (year, monthIdx) => new Date(year, monthIdx + 1, 0);
+    const fmtLong = d => d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+    const fmtShort = d => d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+
+    // ── Event generators ────────────────────────────────────────────
+    // Each returns array of { id, title, date, source, sourceUrl }
+    // id is stable for the (event-kind, occurrence) pair so completions persist.
+
+    function genProfitFirst(rangeStart, rangeEnd) {
+      const out = [];
+      const cur = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+      while (cur <= rangeEnd) {
+        [10, 25].forEach(day => {
+          const d = new Date(cur.getFullYear(), cur.getMonth(), day);
+          if (d >= startOfDay(rangeStart) && d <= rangeEnd) {
+            out.push({
+              id: `pf-${day}__${ymd(d)}`,
+              title: `Profit First Transfer — ${day}th`,
+              date: d,
+              source: 'Profit First',
+              sourceUrl: 'https://tdander26.github.io/jeffrey-dashboard/finance.html'
+            });
+          }
+        });
+        cur.setMonth(cur.getMonth() + 1);
+      }
+      return out;
+    }
+
+    function genQuarterlyTax(rangeStart, rangeEnd) {
+      const out = [];
+      const years = new Set([rangeStart.getFullYear(), rangeEnd.getFullYear()]);
+      // (monthIdx, day, label)
+      const quarters = [
+        [0, 15, 'Q4 Estimated Tax (prior year)'],
+        [3, 15, 'Q1 Estimated Tax'],
+        [5, 15, 'Q2 Estimated Tax'],
+        [8, 15, 'Q3 Estimated Tax']
+      ];
+      years.forEach(y => {
+        quarters.forEach(([m, day, label]) => {
+          const d = new Date(y, m, day);
+          if (d >= startOfDay(rangeStart) && d <= rangeEnd) {
+            out.push({
+              id: `tax-q__${ymd(d)}`,
+              title: label,
+              date: d,
+              source: 'Taxes',
+              sourceUrl: 'https://tdander26.github.io/jeffrey-dashboard/finance.html'
+            });
+          }
+        });
+      });
+      return out;
+    }
+
+    function genAnnualTax(rangeStart, rangeEnd) {
+      const out = [];
+      const years = new Set([rangeStart.getFullYear(), rangeEnd.getFullYear()]);
+      years.forEach(y => {
+        const d = new Date(y, 3, 15); // Apr 15
+        if (d >= startOfDay(rangeStart) && d <= rangeEnd) {
+          out.push({
+            id: `tax-annual__${ymd(d)}`,
+            title: 'Annual Tax Filing Deadline',
+            date: d,
+            source: 'Taxes',
+            sourceUrl: 'https://tdander26.github.io/jeffrey-dashboard/finance.html'
+          });
+        }
+      });
+      return out;
+    }
+
+    function genFamilyNetWorth(rangeStart, rangeEnd) {
+      const out = [];
+      const cur = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+      while (cur <= rangeEnd) {
+        const d = lastDayOfMonth(cur.getFullYear(), cur.getMonth());
+        if (d >= startOfDay(rangeStart) && d <= rangeEnd) {
+          out.push({
+            id: `family-networth__${ymd(d)}`,
+            title: 'Update Family Net Worth',
+            date: d,
+            source: 'Family',
+            sourceUrl: 'https://tdander26.github.io/family-network-dashboard/'
+          });
+        }
+        cur.setMonth(cur.getMonth() + 1);
+      }
+      return out;
+    }
+
+    function genSofiWeekly(rangeStart, rangeEnd) {
+      const out = [];
+      // Find the Sunday on or after rangeStart
+      const d = startOfDay(rangeStart);
+      const offsetToSun = (7 - d.getDay()) % 7;
+      let cur = addDays(d, offsetToSun);
+      while (cur <= rangeEnd) {
+        out.push({
+          id: `sofi-weekly__${ymd(cur)}`,
+          title: 'Sofi Weekly Wheel Check-in',
+          date: new Date(cur),
+          source: 'Sofi',
+          sourceUrl: 'https://tdander26.github.io/sofi-wheel-dashboard/'
+        });
+        cur = addDays(cur, 7);
+      }
+      return out;
+    }
+
+    function genSofiMonthly(rangeStart, rangeEnd) {
+      const out = [];
+      const cur = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+      while (cur <= rangeEnd) {
+        const d = new Date(cur.getFullYear(), cur.getMonth(), 1);
+        if (d >= startOfDay(rangeStart) && d <= rangeEnd) {
+          out.push({
+            id: `sofi-monthly__${ymd(d)}`,
+            title: 'Sofi Monthly Wheel Review',
+            date: d,
+            source: 'Sofi',
+            sourceUrl: 'https://tdander26.github.io/sofi-wheel-dashboard/'
+          });
+        }
+        cur.setMonth(cur.getMonth() + 1);
+      }
+      return out;
+    }
+
+    function buildAllEvents() {
+      const today = startOfDay(new Date());
+      const lookBack = addDays(today, -14); // surface up to 2 weeks overdue
+      const lookAhead = addDays(today, HORIZON_DAYS);
+      return [
+        ...genProfitFirst(lookBack, lookAhead),
+        ...genQuarterlyTax(lookBack, lookAhead),
+        ...genAnnualTax(lookBack, lookAhead),
+        ...genFamilyNetWorth(lookBack, lookAhead),
+        ...genSofiWeekly(lookBack, lookAhead),
+        ...genSofiMonthly(lookBack, lookAhead)
+      ].sort((a, b) => a.date - b.date);
+    }
+
+    // ── Firestore wiring ────────────────────────────────────────────
+    let db = null;
+    let completions = {};
+    let syncReady = false;
+    const syncDot = document.getElementById('syncDot');
+    const syncLabel = document.getElementById('syncLabel');
+
+    function setSync(state, msg) {
+      syncDot.classList.remove('connected', 'error');
+      if (state === 'ok')    syncDot.classList.add('connected');
+      if (state === 'error') syncDot.classList.add('error');
+      syncLabel.textContent = msg;
+    }
+
+    async function initFirebase() {
+      try {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.firestore();
+        const ref = db.collection(COMPLETIONS_DOC.collection).doc(COMPLETIONS_DOC.doc);
+        ref.onSnapshot(snap => {
+          completions = (snap.exists && snap.data().completions) || {};
+          syncReady = true;
+          setSync('ok', 'synced');
+          render();
+        }, err => {
+          console.error(err);
+          setSync('error', 'sync error — using local view');
+          syncReady = true;
+          render();
+        });
+      } catch (err) {
+        console.error(err);
+        setSync('error', 'offline');
+        syncReady = true;
+        render();
+      }
+    }
+
+    async function toggleCompletion(id, nowChecked) {
+      // Optimistic local update
+      if (nowChecked) completions[id] = true;
+      else            delete completions[id];
+      render();
+      if (!db) return;
+      try {
+        const ref = db.collection(COMPLETIONS_DOC.collection).doc(COMPLETIONS_DOC.doc);
+        const fieldPath = `completions.${id}`;
+        if (nowChecked) {
+          await ref.set({ completions: { [id]: true } }, { merge: true });
+        } else {
+          await ref.update({ [fieldPath]: firebase.firestore.FieldValue.delete() });
+        }
+      } catch (err) {
+        console.error(err);
+        setSync('error', 'save failed');
+      }
+    }
+
+    // ── Render ──────────────────────────────────────────────────────
+    function bucketFor(event, today) {
+      const diff = daysBetween(today, event.date);
+      if (diff < 0)        return 'overdue';
+      if (diff === 0)      return 'today';
+      if (diff <= 7)       return 'week';
+      return 'month';
+    }
+
+    function whenLabel(event, today) {
+      const diff = daysBetween(today, event.date);
+      if (diff === 0)      return { text: 'Today', red: false };
+      if (diff === -1)     return { text: 'Yesterday', red: true };
+      if (diff < 0)        return { text: `${-diff} days ago`, red: true };
+      if (diff === 1)      return { text: 'Tomorrow', red: false };
+      if (diff <= 7)       return { text: `${fmtShort(event.date)} · in ${diff} days`, red: false };
+      return                      { text: fmtShort(event.date), red: false };
+    }
+
+    function eventEl(event, today) {
+      const done = !!completions[event.id];
+      const when = whenLabel(event, today);
+      const isOverdue = daysBetween(today, event.date) < 0 && !done;
+
+      const row = document.createElement('div');
+      row.className = 'event' + (done ? ' done' : '') + (isOverdue ? ' overdue' : '');
+
+      const cb = document.createElement('button');
+      cb.className = 'checkbox' + (done ? ' checked' : '');
+      cb.setAttribute('aria-label', done ? 'Mark not done' : 'Mark done');
+      cb.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+      cb.addEventListener('click', () => toggleCompletion(event.id, !done));
+
+      const body = document.createElement('div');
+      body.className = 'event-body';
+
+      const title = document.createElement('div');
+      title.className = 'event-title';
+      title.textContent = event.title;
+
+      const meta = document.createElement('div');
+      meta.className = 'event-meta';
+      const src = document.createElement('span');
+      src.className = 'source-tag';
+      src.textContent = event.source;
+      const w = document.createElement('span');
+      w.className = 'event-when' + (when.red ? ' red' : '');
+      w.textContent = when.text;
+      meta.append(src, w);
+
+      body.append(title, meta);
+
+      const link = document.createElement('a');
+      link.className = 'event-link';
+      link.href = event.sourceUrl;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = 'Open';
+
+      row.append(cb, body, link);
+      return row;
+    }
+
+    function render() {
+      const today = startOfDay(new Date());
+      document.getElementById('todayLabel').textContent = fmtLong(today);
+
+      const buckets = { overdue: [], today: [], week: [], month: [] };
+      const events = buildAllEvents();
+
+      events.forEach(ev => {
+        // Hide completed overdue items so they don't pile up forever
+        const isOverdue = daysBetween(today, ev.date) < 0;
+        if (isOverdue && completions[ev.id]) return;
+        buckets[bucketFor(ev, today)].push(ev);
+      });
+
+      Object.entries(buckets).forEach(([key, list]) => {
+        const body = document.getElementById(`body-${key}`);
+        const count = document.getElementById(`count-${key}`);
+        body.innerHTML = '';
+        count.textContent = list.length ? `${list.length}` : '';
+        if (!list.length) {
+          const empty = document.createElement('div');
+          empty.className = 'empty';
+          empty.textContent = key === 'overdue' ? 'Nothing slipping. Nice.' :
+                              key === 'today'   ? 'Nothing due today.' :
+                              key === 'week'    ? 'Clear for the next week.' :
+                                                  'Nothing else this month.';
+          body.append(empty);
+          return;
+        }
+        list.forEach(ev => body.append(eventEl(ev, today)));
+      });
+    }
+
+    // ── Boot ────────────────────────────────────────────────────────
+    render(); // initial render before firestore (completions = {})
+    initFirebase();
+  </script>
+
+</body>
+</html>
