@@ -114,6 +114,101 @@ A reasonable hybrid: position the in‑house panel as the **lower‑cost, clinic
 
 ---
 
+## Appendix A — Full marker‑by‑marker comparison
+
+**Legend:** ✅ included · 🟰 same information via a direct equivalent · ❌ not in standard panel
+
+### Markers on the in‑house panel
+
+| # | Biomarker | In‑house panel | Function Health | Note |
+|---|---|:--:|:--:|---|
+| | **CBC w/ Differential + Platelet** | | | |
+| 1 | Hematocrit | ✅ | ✅ | |
+| 2 | Hemoglobin | ✅ | ✅ | |
+| 3 | MCV | ✅ | ✅ | |
+| 4 | MCH | ✅ | ✅ | |
+| 5 | MCHC | ✅ | ✅ | |
+| 6 | RDW | ✅ | ✅ | |
+| 7 | Differential — % (neut/lymph/mono/eos/baso) | ✅ | ✅ | |
+| 8 | Differential — absolute counts | ✅ | ✅ | |
+| 9 | Platelet count | ✅ | ✅ | |
+| 10 | RBC count | ✅ | ✅ | |
+| 11 | WBC count | ✅ | ✅ | |
+| | **Lipid Panel** | | | |
+| 12 | LDL | ✅ | ✅ | |
+| 13 | HDL | ✅ | ✅ | |
+| 14 | VLDL | ✅ | 🟰 | Function reports Total/LDL/HDL/Trig; VLDL not always broken out separately |
+| 15 | Total Cholesterol | ✅ | ✅ | |
+| 16 | Triglycerides | ✅ | ✅ | |
+| 17 | Chol/HDL ratio | ✅ | ✅ | calculated |
+| | **Chem / Metabolic Advantage** | | | |
+| 18 | Glucose | ✅ | ✅ | |
+| 19 | Uric Acid | ✅ | ✅ | |
+| 20 | BUN | ✅ | ✅ | |
+| 21 | Creatinine | ✅ | ✅ | |
+| 22 | BUN/Cr ratio | ✅ | ✅ | |
+| 23 | eGFR | ✅ | ✅ | |
+| 24 | Sodium | ✅ | ✅ | |
+| 25 | Potassium | ✅ | ✅ | |
+| 26 | Chloride | ✅ | ✅ | |
+| 27 | Calcium | ✅ | ✅ | |
+| 28 | CO₂ | ✅ | ✅ | |
+| 29 | Phosphorus | ✅ | ✅ | |
+| 30 | Total Protein | ✅ | ✅ | |
+| 31 | Albumin | ✅ | ✅ | |
+| 32 | Globulin | ✅ | ✅ | |
+| 33 | A/G ratio | ✅ | ✅ | |
+| 34 | Total Bilirubin | ✅ | ✅ | |
+| 35 | Alkaline Phosphatase | ✅ | ✅ | |
+| 36 | LDH | ✅ | ✅ | |
+| 37 | AST / SGOT | ✅ | ✅ | |
+| 38 | ALT / SGPT | ✅ | ✅ | |
+| 39 | GGT | ✅ | ✅ | |
+| | **Full Thyroid Panel** | | | |
+| 40 | TSH | ✅ | ✅ | |
+| 41 | Total T4 | ✅ | 🟰 | Function emphasizes Free T4 |
+| 42 | Total T3 | ✅ | 🟰 | Function emphasizes Free T3 |
+| 43 | Free Thyroxine Index | ✅ | ❌ | legacy calculated index |
+| 44 | Free T3 | ✅ | ✅ | |
+| 45 | Free T4 | ✅ | ✅ | |
+| 46 | Reverse T3 | ✅ | ✅ | |
+| 47 | TPO antibodies | ✅ | ✅ | |
+| 48 | Thyroglobulin (TGB) antibodies | ✅ | ✅ | |
+| 49 | T3 Uptake | ✅ | ❌ | legacy; superseded by direct free hormones |
+| | **Vitamin D‑Flam** | | | |
+| 50 | 25‑OH Vitamin D | ✅ | ✅ | |
+| 51 | Homocysteine | ✅ | ✅ | |
+| 52 | CRP (hs‑CRP) | ✅ | ✅ | |
+| | **Anemia Panel** | | | |
+| 53 | Iron | ✅ | ✅ | |
+| 54 | TIBC | ✅ | ✅ | |
+| 55 | UIBC | ✅ | 🟰 | derivable from iron panel; not always reported separately |
+| 56 | Ferritin | ✅ | ✅ | |
+| 57 | Iron Saturation | ✅ | ✅ | |
+| | **Additional Biomarkers** | | | |
+| 58 | RBC Magnesium | ✅ | ✅ | |
+| 59 | Hemoglobin A1c | ✅ | ✅ | |
+| 60 | Insulin | ✅ | ✅ | |
+| 61 | Folic Acid (Folate) | ✅ | ✅ | |
+| 62 | ANA (IFA) | ✅ | ✅ | |
+
+**Coverage of the in‑house panel by Function:** ~58 of 62 markers are directly included (✅), 4 are captured via a modern direct equivalent or not separately reported (🟰), and only 3 legacy items (Free Thyroxine Index, T3 Uptake — and VLDL as a discrete value) are genuinely absent. **No clinically meaningful gap.**
+
+### Markers Function adds that the in‑house panel does not
+
+| Category | Examples Function includes (not on in‑house panel) |
+|---|---|
+| Advanced cardiac | Apolipoprotein B (ApoB), Lipoprotein(a) / Lp(a), LDL particle size/number |
+| Nutrients | Vitamin B12 / Methylmalonic Acid (MMA), additional vitamins |
+| Hormones | Cortisol, Testosterone (total/free), Estradiol, SHBG, DHEA‑S, FSH, LH, Progesterone |
+| Cancer signals | PSA (men) and other screening markers |
+| Heavy metals | Lead, Mercury, and other metals |
+| Kidney (advanced) | Cystatin C |
+
+*Exact add‑on list varies by draw and is periodically updated; treat the above as representative, not exhaustive.*
+
+---
+
 ## Sources
 
 - [Function — Pricing](https://www.functionhealth.com/pricing)
